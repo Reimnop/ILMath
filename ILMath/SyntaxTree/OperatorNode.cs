@@ -9,6 +9,11 @@ public class OperatorNode : INode
         Operator = @operator;
     }
     
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        yield break;
+    }
+    
     public override string ToString()
     {
         return $"Operator({Operator})";

@@ -10,6 +10,12 @@ public class ExponentNode : INode
         Base = @base;
         Exponent = exponent;
     }
+    
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        yield return Base;
+        yield return Exponent;
+    }
 
     public override string ToString()
     {

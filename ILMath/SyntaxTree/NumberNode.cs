@@ -11,6 +11,11 @@ public class NumberNode : INode
         Value = value;
     }
     
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        yield break;
+    }
+    
     public override string ToString()
     {
         return $"Number({Value.ToString(CultureInfo.InvariantCulture)})";

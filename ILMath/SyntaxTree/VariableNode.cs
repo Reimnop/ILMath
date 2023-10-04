@@ -9,6 +9,11 @@ public class VariableNode : INode
         Identifier = identifier;
     }
     
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        yield break;
+    }
+    
     public override string ToString()
     {
         return $"Variable({Identifier})";

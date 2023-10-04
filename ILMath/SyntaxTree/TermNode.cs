@@ -9,6 +9,11 @@ public class TermNode : INode
         Children = children.ToList();
     }
     
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        return Children;
+    }
+    
     public override string ToString()
     {
         return $"Term({string.Join(", ", Children)})";

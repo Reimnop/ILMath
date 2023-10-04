@@ -14,7 +14,7 @@ context.RegisterFunction("myFunction", parameters => parameters[0] + parameters[
 context.RegisterVariable("myVariable", 5);
 
 // Create a new evaluator
-var evaluator = MathEvaluation.CompileExpression(expression);
+var evaluator = MathEvaluation.CompileExpression("MyFunction", expression);
 
 // Evaluate the expression
 var result = evaluator.Invoke(context);

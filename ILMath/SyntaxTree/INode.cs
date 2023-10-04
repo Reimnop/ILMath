@@ -2,5 +2,5 @@
 
 public interface INode
 {
-    
+    IEnumerable<INode> EnumerateChildren();
 }

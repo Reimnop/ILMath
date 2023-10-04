@@ -11,6 +11,11 @@ public class FunctionNode : INode
         Parameters = parameters.ToList();
     }
     
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        return Parameters;
+    }
+    
     public override string ToString()
     {
         return $"Function({Identifier}, {string.Join(", ", Parameters)})";

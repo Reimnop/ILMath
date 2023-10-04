@@ -1,4 +1,5 @@
-﻿using System.Reflection.Emit;
+﻿using System.Diagnostics;
+using System.Reflection.Emit;
 using ILMath.Exception;
 using ILMath.SyntaxTree;
 
@@ -14,30 +15,72 @@ public delegate double Evaluator(IEvaluationContext context);
 /// </summary>
 public class Compiler
 {
-    private readonly string name;
+    private record struct CompilationState(LocalBuilder? Parameters, int StackLocation);
+
+    private readonly INode root;
+    private readonly int maximumParameterStackSize;
     
-    public Compiler(string name)
+    public Compiler(INode root)
     {
-        this.name = name;
+        this.root = root;
+        
+        // Calculate the maximum parameter stack size
+        var maximumStackSize = 0;
+        CalculateMaximumParameterStackSize(root, -1, ref maximumStackSize);
+        maximumParameterStackSize = maximumStackSize;
     }
-    
+
+    private static void CalculateMaximumParameterStackSize(INode node, int stackLocation, ref int maximumStackSize)
+    {
+        if (node is FunctionNode functionNode)
+        {
+            // For each child, increment the stack size
+            foreach (var child in functionNode.Parameters)
+            {
+                stackLocation++;
+                CalculateMaximumParameterStackSize(child, stackLocation, ref maximumStackSize);
+                maximumStackSize = Math.Max(maximumStackSize, stackLocation + 1);
+            }
+        }
+        else
+            foreach (var child in node.EnumerateChildren())
+                CalculateMaximumParameterStackSize(child, stackLocation, ref maximumStackSize);
+    }
+
     /// <summary>
     /// Compiles the syntax tree into a function.
     /// </summary>
+    /// <param name="name">The name of the function.</param>
     /// <returns>The evaluator.</returns>
-    public Evaluator Compile(INode node)
+    public Evaluator Compile(string name)
     {
-        return CompileNode(name, node);
+        return CompileSyntaxTree(name, root);
     }
 
-    private static Evaluator CompileNode(string name, INode node)
+    private Evaluator CompileSyntaxTree(string name, INode rootNode)
     {
-        // Create a new dynamic method with a double return type and no parameters
+        // Create a new dynamic method
         var method = new DynamicMethod(name, typeof(double), new [] { typeof(IEvaluationContext) });
         var il = method.GetILGenerator();
+        
+        // If maximum parameter stack size is greater than zero, stackalloc the parameters array
+        LocalBuilder? parameters = null;
+        if (maximumParameterStackSize > 0)
+        {
+            // Load the parameters count onto the stack
+            il.Emit(OpCodes.Ldc_I4, maximumParameterStackSize * sizeof(double));
+            
+            // Create the parameters array on the stack
+            il.Emit(OpCodes.Conv_U);
+            il.Emit(OpCodes.Localloc);
+            
+            // Store the parameters array in a local variable
+            parameters = il.DeclareLocal(typeof(double*));
+            il.Emit(OpCodes.Stloc, parameters);
+        }
 
         // Compile the syntax tree into IL code
-        CompileNode(node, il);
+        CompileNode(rootNode, il, new CompilationState(parameters, 0));
         
         // Return the value on the stack
         il.Emit(OpCodes.Ret);
@@ -46,24 +89,24 @@ public class Compiler
         return (Evaluator) method.CreateDelegate(typeof(Evaluator));
     }
 
-    private static void CompileNode(INode node, ILGenerator il)
+    private void CompileNode(INode node, ILGenerator il, CompilationState state)
     {
         switch (node)
         {
             case ExpressionNode expressionNode:
-                CompileExpressionNode(expressionNode, il);
+                CompileExpressionNode(expressionNode, il, state);
                 break;
             case TermNode termNode:
-                CompileTermNode(termNode, il);
+                CompileTermNode(termNode, il, state);
                 break;
             case ExponentNode exponentNode:
-                CompileExponentNode(exponentNode, il);
+                CompileExponentNode(exponentNode, il, state);
                 break;
             case NumberNode numberNode:
                 CompileNumberNode(numberNode, il);
                 break;
             case UnaryNode unaryNode:
-                CompileUnaryNode(unaryNode, il);
+                CompileUnaryNode(unaryNode, il, state);
                 break;
             case OperatorNode operatorNode:
                 CompileOperatorNode(operatorNode, il);
@@ -72,17 +115,17 @@ public class Compiler
                 CompileVariableNode(variableNode, il);
                 break;
             case FunctionNode functionNode:
-                CompileFunctionNode(functionNode, il);
+                CompileFunctionNode(functionNode, il, state);
                 break;
             default:
                 throw new CompilerException($"Unknown node type: {node.GetType()}");
         }
     }
 
-    private static void CompileExpressionNode(ExpressionNode expressionNode, ILGenerator il)
+    private void CompileExpressionNode(ExpressionNode expressionNode, ILGenerator il, CompilationState state)
     {
         var children = expressionNode.Children;
-        CompileNode(children[0], il);
+        CompileNode(children[0], il, state);
         
         // Get the next nodes
         for (var i = 1; i < children.Count; i += 2)
@@ -90,15 +133,15 @@ public class Compiler
             var @operator = (OperatorNode) children[i];
             var child = children[i + 1];
             
-            CompileNode(child, il);
-            CompileNode(@operator, il);
+            CompileNode(child, il, state);
+            CompileNode(@operator, il, state);
         }
     }
     
-    private static void CompileTermNode(TermNode termNode, ILGenerator il)
+    private void CompileTermNode(TermNode termNode, ILGenerator il, CompilationState state)
     {
         var children = termNode.Children;
-        CompileNode(children[0], il);
+        CompileNode(children[0], il, state);
         
         // Get the next nodes
         for (var i = 1; i < children.Count; i += 2)
@@ -106,16 +149,16 @@ public class Compiler
             var @operator = (OperatorNode) children[i];
             var child = children[i + 1];
             
-            CompileNode(child, il);
-            CompileNode(@operator, il);
+            CompileNode(child, il, state);
+            CompileNode(@operator, il, state);
         }
     }
     
-    private static void CompileExponentNode(ExponentNode exponentNode, ILGenerator il)
+    private void CompileExponentNode(ExponentNode exponentNode, ILGenerator il, CompilationState state)
     {
         // Compile the base and exponent
-        CompileNode(exponentNode.Base, il);
-        CompileNode(exponentNode.Exponent, il);
+        CompileNode(exponentNode.Base, il, state);
+        CompileNode(exponentNode.Exponent, il, state);
         
         // Call the Math.Pow method
         il.Emit(OpCodes.Call, typeof(Math).GetMethod(nameof(Math.Pow))!);
@@ -126,14 +169,14 @@ public class Compiler
         il.Emit(OpCodes.Ldc_R8, numberNode.Value);
     }
     
-    private static void CompileUnaryNode(UnaryNode unaryNode, ILGenerator il)
+    private void CompileUnaryNode(UnaryNode unaryNode, ILGenerator il, CompilationState state)
     {
-        CompileNode(unaryNode.Child, il);
+        CompileNode(unaryNode.Child, il, state);
         if (unaryNode.Operator == OperatorType.Minus)
             il.Emit(OpCodes.Neg);
     }
     
-    private static void CompileOperatorNode(OperatorNode operatorNode, ILGenerator il)
+    private void CompileOperatorNode(OperatorNode operatorNode, ILGenerator il)
     {
         var opCode = operatorNode.Operator switch
         {
@@ -150,7 +193,7 @@ public class Compiler
         il.Emit(opCode);
     }
     
-    private static void CompileVariableNode(VariableNode variableNode, ILGenerator il)
+    private void CompileVariableNode(VariableNode variableNode, ILGenerator il)
     {
         // Load the context onto the stack
         il.Emit(OpCodes.Ldarg_0);
@@ -162,10 +205,8 @@ public class Compiler
         il.Emit(OpCodes.Callvirt, typeof(IEvaluationContext).GetMethod(nameof(IEvaluationContext.GetVariable))!);
     }
     
-    private static void CompileFunctionNode(FunctionNode functionNode, ILGenerator il)
+    private void CompileFunctionNode(FunctionNode functionNode, ILGenerator il, CompilationState state)
     {
-        // TODO: Make it use stackalloc instead
-        
         // Load the context onto the stack
         il.Emit(OpCodes.Ldarg_0);
         
@@ -175,40 +216,58 @@ public class Compiler
         var parametersCount = functionNode.Parameters.Count;
         if (parametersCount > 0)
         {
-            // Create the parameters array
-            var parameters = il.DeclareLocal(typeof(double[]));
-            il.Emit(OpCodes.Ldc_I4, parametersCount);
-            il.Emit(OpCodes.Newarr, typeof(double));
-            il.Emit(OpCodes.Stloc, parameters);
-        
+            // Make sure the parameters array is not null
+            Debug.Assert(state.Parameters != null);
+            
             // Populate the parameters array
             for (var i = 0; i < parametersCount; i++)
             {
-                // Load the parameters array onto the stack
-                il.Emit(OpCodes.Ldloc, parameters);
+                // Load the parameters array pointer onto the stack
+                il.Emit(OpCodes.Ldloc, state.Parameters);
 
-                // Load the current index onto the stack
-                il.Emit(OpCodes.Ldc_I4, i);
+                var offset = state.StackLocation + i;
+                if (offset > 0)
+                {
+                    // Load the current byte offset onto the stack
+                    il.Emit(OpCodes.Ldc_I4, offset * sizeof(double));
+                
+                    // Add the byte offset to the array pointer
+                    il.Emit(OpCodes.Add);
+                }
 
                 // Compile the parameter node
-                CompileNode(functionNode.Parameters[i], il);
+                CompileNode(functionNode.Parameters[i], il, state with {StackLocation = offset});
 
                 // Store the parameter value in the array
-                il.Emit(OpCodes.Stelem_R8);
+                il.Emit(OpCodes.Stind_R8);
             }
 
-            // Load the parameters array onto the stack
-            il.Emit(OpCodes.Ldloc, parameters);
+            // Load the parameters array pointer onto the stack
+            il.Emit(OpCodes.Ldloc, state.Parameters);
+            
+            var parametersOffset = state.StackLocation;
+            if (parametersOffset > 0)
+            {
+                // Load the current byte offset onto the stack
+                il.Emit(OpCodes.Ldc_I4, parametersOffset * sizeof(double));
+                
+                // Add the byte offset to the array pointer
+                il.Emit(OpCodes.Add);
+            }
+            
+            // Load the parameters count onto the stack
+            il.Emit(OpCodes.Ldc_I4, parametersCount);
+            
+            // Create a span from the parameters array
+            il.Emit(OpCodes.Newobj, typeof(Span<double>).GetConstructor(new [] { typeof(void*), typeof(int) })!);
         }
         else
         {
-            // Load null onto the stack to create an empty span
-            il.Emit(OpCodes.Ldnull);
+            // Create an empty span
+            // We use Call instead of Ldsfld because the Span<double>.Empty is a property
+            il.Emit(OpCodes.Call, typeof(Span<double>).GetProperty(nameof(Span<double>.Empty))!.GetMethod!);
         }
-        
-        // Create the span
-        il.Emit(OpCodes.Newobj, typeof(Span<double>).GetConstructor(new [] { typeof(double[]) })!);
-        
+
         // Call the CallFunction method
         il.Emit(OpCodes.Callvirt, typeof(IEvaluationContext).GetMethod(nameof(IEvaluationContext.CallFunction))!);
     }

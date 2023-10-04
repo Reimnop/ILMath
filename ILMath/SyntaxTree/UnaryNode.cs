@@ -11,6 +11,11 @@ public class UnaryNode : INode
         Child = child;
     }
     
+    public IEnumerable<INode> EnumerateChildren()
+    {
+        yield return Child;
+    }
+
     public override string ToString()
     {
         return $"Unary({Operator}, {Child})";
