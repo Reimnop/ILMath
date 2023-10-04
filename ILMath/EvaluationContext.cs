@@ -24,8 +24,8 @@ public class EvaluationContext : IEvaluationContext
         RegisterVariable("phi", (1.0 + Math.Sqrt(5.0)) / 2.0);
         RegisterVariable("inf", double.PositiveInfinity);
         RegisterVariable("nan", double.NaN);
-        RegisterVariable("deg_to_rad", Math.PI / 180.0);
-        RegisterVariable("rad_to_deg", 180.0 / Math.PI);
+        RegisterVariable("degToRad", Math.PI / 180.0);
+        RegisterVariable("radToDeg", 180.0 / Math.PI);
 
         // Register functions
         RegisterFunction("sin", parameters => Math.Sin(parameters[0]));
