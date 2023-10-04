@@ -14,6 +14,7 @@
         <RepositoryUrl>https://github.com/Reimnop/ILMath</RepositoryUrl>
         <PackageTags>expression math compiler il msil</PackageTags>
         <Authors>Reimnop</Authors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
