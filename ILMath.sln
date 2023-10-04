@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILMath", "ILMath\ILMath.csproj", "{9FA18D24-8A0B-4657-AB8D-29D14724EEB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILMath.Test", "ILMath.Test\ILMath.Test.csproj", "{5DC1234D-130F-4E7B-A5EB-9B7289F4AA9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9FA18D24-8A0B-4657-AB8D-29D14724EEB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FA18D24-8A0B-4657-AB8D-29D14724EEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FA18D24-8A0B-4657-AB8D-29D14724EEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FA18D24-8A0B-4657-AB8D-29D14724EEB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DC1234D-130F-4E7B-A5EB-9B7289F4AA9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DC1234D-130F-4E7B-A5EB-9B7289F4AA9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DC1234D-130F-4E7B-A5EB-9B7289F4AA9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DC1234D-130F-4E7B-A5EB-9B7289F4AA9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Title>ILMath</Title>
+        <Description>ILMath is a hyper-fast and flexible math expression parser for C# and .NET.</Description>
+        <Copyright>MIT License</Copyright>
+        <PackageLicenseUrl>https://opensource.org/license/mit/</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/Reimnop/ILMath</RepositoryUrl>
+        <PackageTags>expression math compiler il msil</PackageTags>
+        <Authors>Reimnop</Authors>
+    </PropertyGroup>
+
+</Project>
