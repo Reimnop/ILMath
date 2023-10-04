@@ -8,10 +8,15 @@
         <Version>1.1.0</Version>
         <Title>ILMath</Title>
         <Description>ILMath is a hyper-fast and flexible math expression parser for C# and .NET.</Description>
-        <Copyright>MIT License</Copyright>
+        <Copyright>Copyright (c) 2023 Reimnop</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/Reimnop/ILMath</RepositoryUrl>
         <PackageTags>expression math compiler il msil</PackageTags>
         <Authors>Reimnop</Authors>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../LICENSE" Pack="true" PackagePath=""/>
+    </ItemGroup>
 
 </Project>
