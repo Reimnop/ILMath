@@ -21,4 +21,19 @@ public class ExponentNode : INode
     {
         return $"Exponent({Base}, {Exponent})";
     }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Base);
+        hash.Add(Exponent);
+        return hash.ToHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not ExponentNode other)
+            return false;
+        return Base.Equals(other.Base) && Exponent.Equals(other.Exponent);
+    }
 }

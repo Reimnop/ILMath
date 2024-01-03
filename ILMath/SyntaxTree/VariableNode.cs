@@ -18,4 +18,16 @@ public class VariableNode : INode
     {
         return $"Variable({Identifier})";
     }
+    
+    public override int GetHashCode()
+    {
+        return Identifier.GetHashCode();
+    }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is not VariableNode other)
+            return false;
+        return Identifier.Equals(other.Identifier);
+    }
 }

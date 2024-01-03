@@ -20,4 +20,19 @@ public class UnaryNode : INode
     {
         return $"Unary({Operator}, {Child})";
     }
+    
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Operator);
+        hash.Add(Child);
+        return hash.ToHashCode();
+    }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is not UnaryNode other)
+            return false;
+        return Operator.Equals(other.Operator) && Child.Equals(other.Child);
+    }
 }

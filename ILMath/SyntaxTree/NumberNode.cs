@@ -20,4 +20,16 @@ public class NumberNode : INode
     {
         return $"Number({Value.ToString(CultureInfo.InvariantCulture)})";
     }
+    
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is not NumberNode other)
+            return false;
+        return Value.Equals(other.Value);
+    }
 }

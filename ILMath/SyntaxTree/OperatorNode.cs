@@ -18,4 +18,16 @@ public class OperatorNode : INode
     {
         return $"Operator({Operator})";
     }
+    
+    public override int GetHashCode()
+    {
+        return Operator.GetHashCode();
+    }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is not OperatorNode other)
+            return false;
+        return Operator.Equals(other.Operator);
+    }
 }
