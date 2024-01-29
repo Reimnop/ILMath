@@ -4,8 +4,8 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyVersion>1.1.2</AssemblyVersion>
-        <Version>1.1.2</Version>
+        <AssemblyVersion>1.2.0</AssemblyVersion>
+        <Version>1.2.0</Version>
         <Title>ILMath</Title>
         <Description>ILMath is a hyper-fast and flexible math expression parser for C# and .NET.</Description>
         <Copyright>Copyright (c) 2023 Reimnop</Copyright>
