@@ -80,10 +80,7 @@ public class Lexer
             return NextNumber();
         
         // If it is a letter, read the whole identifier
-        if (currentChar == '_' 
-            || (currentChar >= 'a' && currentChar <= 'z') 
-            || (currentChar >= 'A' && currentChar <= 'Z')
-            )
+        if (IsIdentifierChar(currentChar))
             return NextIdentifier();
 
         // Else, we found an unknown token
@@ -96,18 +93,24 @@ public class Lexer
         var builder = new StringBuilder();
         
         // Read the whole identifier
-        while (index < input.Length 
-               && (input[index] == '_' 
-                   || (input[index] >= 'a' && input[index] <= 'z') 
-                   || (input[index] >= 'A' && input[index] <= 'Z') 
-                   || char.IsDigit(input[index]))
-               )
+        while (index < input.Length && IsIdentifierChar(input[index]))
         {
             builder.Append(input[index]);
             index++;
         }
         
         return new Token(TokenType.Identifier, builder.ToString());
+    }
+
+    private bool IsIdentifierChar(char c)
+    {
+        return c == '_' 
+               || c == '@'
+               || c == '$'
+               || c == '#'
+               || (c >= 'a' && c <= 'z') 
+               || (c >= 'A' && c <= 'Z') 
+               || char.IsDigit(c);
     }
 
     private Token NextNumber()
