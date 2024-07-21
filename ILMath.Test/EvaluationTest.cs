@@ -42,6 +42,30 @@ public class EvaluationTest
         var context = CreateEvaluationContext();
         Assert.AreEqual(Math.Sqrt(2.0) * 16.0 + 1.0, evaluator(context), 0.00001);
     }
+    
+    [TestMethod]
+    public void TestMethod6()
+    {
+        var evaluator = CreateEvaluator("4 ^ 7");
+        var context = CreateEvaluationContext();
+        Assert.AreEqual(Math.Pow(4.0, 7.0), evaluator(context), 0.00001);
+    }
+    
+    [TestMethod]
+    public void TestMethod7()
+    {
+        var evaluator = CreateEvaluator("4 ^ (7 + 2)");
+        var context = CreateEvaluationContext();
+        Assert.AreEqual(Math.Pow(4.0, 7.0 + 2.0), evaluator(context), 0.00001);
+    }
+    
+    [TestMethod]
+    public void TestMethod8()
+    {
+        var evaluator = CreateEvaluator("4 ^ (7 + 2) ^ 1.5");
+        var context = CreateEvaluationContext();
+        Assert.AreEqual(Math.Pow(4.0, Math.Pow(7.0 + 2.0, 1.5)), evaluator(context), 0.00001);
+    }
 
     private static Evaluator CreateEvaluator(string expression)
     {

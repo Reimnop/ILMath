@@ -59,6 +59,45 @@ public class EqualityTest
         Assert.AreEqual(expect, CreateSyntaxTree("5"));
     }
     
+    [TestMethod]
+    public void TestMethod6()
+    {
+        var expect = new OperatorNode(
+            OperatorType.Exponent, 
+            new NumberNode(4.0), 
+            new NumberNode(7.0));
+        Assert.AreEqual(expect, CreateSyntaxTree("4 ^ 7"));
+    }
+    
+    [TestMethod]
+    public void TestMethod7()
+    {
+        var expect = new OperatorNode(
+            OperatorType.Exponent, 
+            new NumberNode(4.0), 
+            new OperatorNode(
+                OperatorType.Plus, 
+                new NumberNode(7.0), 
+                new NumberNode(2.0)));
+        Assert.AreEqual(expect, CreateSyntaxTree("4 ^ (7 + 2)"));
+    }
+    
+    [TestMethod]
+    public void TestMethod8()
+    {
+        var expect = new OperatorNode(
+            OperatorType.Exponent, 
+            new NumberNode(4.0), 
+            new OperatorNode(
+                OperatorType.Exponent, 
+                new OperatorNode(
+                    OperatorType.Plus, 
+                    new NumberNode(7.0), 
+                    new NumberNode(2.0)), 
+                new NumberNode(1.5)));
+        Assert.AreEqual(expect, CreateSyntaxTree("4 ^ (7 + 2) ^ 1.5"));
+    }
+    
     private static INode CreateSyntaxTree(string expression)
     {
         var lexer = new Lexer(expression);

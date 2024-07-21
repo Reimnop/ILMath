@@ -96,9 +96,6 @@ public class Compiler
             case OperatorNode expressionNode:
                 CompileOperatorNode(expressionNode, il, state);
                 break;
-            case ExponentNode exponentNode:
-                CompileExponentNode(exponentNode, il, state);
-                break;
             case NumberNode numberNode:
                 CompileNumberNode(numberNode, il);
                 break;
@@ -124,16 +121,6 @@ public class Compiler
         CompileNode(left, il, state);
         CompileNode(right, il, state);
         GenerateOperatorInstruction(@operator, il);
-    }
-    
-    private void CompileExponentNode(ExponentNode exponentNode, ILGenerator il, CompilationState state)
-    {
-        // Compile the base and exponent
-        CompileNode(exponentNode.Base, il, state);
-        CompileNode(exponentNode.Exponent, il, state);
-        
-        // Call the Math.Pow method
-        il.Emit(OpCodes.Call, typeof(Math).GetMethod(nameof(Math.Pow))!);
     }
     
     private static void CompileNumberNode(NumberNode numberNode, ILGenerator il)
@@ -236,9 +223,13 @@ public class Compiler
             OperatorType.Multiplication => OpCodes.Mul,
             OperatorType.Division => OpCodes.Div,
             OperatorType.Modulo => OpCodes.Rem,
+            OperatorType.Exponent => OpCodes.Call,
             _ => throw new CompilerException($"Unknown operator type '{operatorType}'")
         };
         
-        il.Emit(opCode);
+        if (operatorType != OperatorType.Exponent)
+            il.Emit(opCode);
+        else 
+            il.Emit(opCode, typeof(Math).GetMethod(nameof(Math.Pow))!);
     }
 }

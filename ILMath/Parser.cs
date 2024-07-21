@@ -50,7 +50,7 @@ public class Parser
 
     private INode Term()
     {
-        var left = Factor();
+        var left = Exponent();
         if (lexer.CurrentToken.Type is TokenType.Multiplication or TokenType.Division or TokenType.Modulo)
         {
             var @operator = lexer.CurrentToken.Type switch
@@ -76,7 +76,7 @@ public class Parser
         {
             Consume(TokenType.Power);
             var exponent = Exponent();
-            return new ExponentNode(@base, exponent);
+            return new OperatorNode(OperatorType.Exponent, @base, exponent);
         }
         
         return @base;

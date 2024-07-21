@@ -6,5 +6,6 @@ public enum OperatorType
     Minus,
     Multiplication,
     Division,
-    Modulo
+    Modulo,
+    Exponent
 }

@@ -3,8 +3,8 @@ grammar Expression;
 // Parser rules
 
 root       : expression EOF ;
-expression : term ((PLUS | MINUS) term)? ;
-term       : exponent ((MULTIPLICATION | DIVISION | MODULO) exponent)? ;
+expression : term ((PLUS | MINUS) expression)? ;
+term       : exponent ((MULTIPLICATION | DIVISION | MODULO) term)? ;
 exponent   : factor (POWER exponent)? ;
 factor     : NUMBER | variable | unary | function | OPEN_PARENTHESIS expression CLOSE_PARENTHESIS ;
 function   : IDENTIFIER OPEN_PARENTHESIS (expression (COMMA expression)*)? CLOSE_PARENTHESIS ;
