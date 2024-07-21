@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILMath", "ILMath\ILMath.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILMath.Test", "ILMath.Test\ILMath.Test.csproj", "{02F5934B-391C-4DAB-B5CA-08FA3C9D4EE2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILMath.Benchmark", "ILMath.Benchmark\ILMath.Benchmark.csproj", "{9B41011F-B80D-43C6-A5E4-DED08E66974A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{02F5934B-391C-4DAB-B5CA-08FA3C9D4EE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02F5934B-391C-4DAB-B5CA-08FA3C9D4EE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02F5934B-391C-4DAB-B5CA-08FA3C9D4EE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B41011F-B80D-43C6-A5E4-DED08E66974A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B41011F-B80D-43C6-A5E4-DED08E66974A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B41011F-B80D-43C6-A5E4-DED08E66974A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B41011F-B80D-43C6-A5E4-DED08E66974A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
