@@ -36,39 +36,35 @@ public class Parser
 
     private INode Expression()
     {
-        IEnumerable<INode> EnumerateNodes()
+        var left = Term();
+        if (lexer.CurrentToken.Type is TokenType.Plus or TokenType.Minus)
         {
-            yield return Term();
-            while (lexer.CurrentToken.Type is TokenType.Plus or TokenType.Minus)
-            {
-                var @operator = lexer.CurrentToken.Type == TokenType.Plus ? OperatorType.Plus : OperatorType.Minus;
-                yield return new OperatorNode(@operator);
-                Consume(lexer.CurrentToken.Type);
-                yield return Term();
-            }
+            var @operator = lexer.CurrentToken.Type == TokenType.Plus ? OperatorType.Plus : OperatorType.Minus;
+            Consume(lexer.CurrentToken.Type);
+            var right = Expression();
+            return new OperatorNode(@operator, left, right);
         }
 
-        return new ExpressionNode(EnumerateNodes());
+        return left;
     }
 
     private INode Term()
     {
-        IEnumerable<INode> EnumerateNodes()
+        var left = Factor();
+        if (lexer.CurrentToken.Type is TokenType.Multiplication or TokenType.Division or TokenType.Modulo)
         {
-            yield return Exponent();
-            while (lexer.CurrentToken.Type is TokenType.Multiplication or TokenType.Division or TokenType.Modulo)
+            var @operator = lexer.CurrentToken.Type switch
             {
-                var @operator = 
-                    lexer.CurrentToken.Type == TokenType.Multiplication ? OperatorType.Multiplication 
-                    : lexer.CurrentToken.Type == TokenType.Division ? OperatorType.Division 
-                    : OperatorType.Modulo;
-                yield return new OperatorNode(@operator);
-                Consume(lexer.CurrentToken.Type);
-                yield return Exponent();
-            }
+                TokenType.Multiplication => OperatorType.Multiplication,
+                TokenType.Division => OperatorType.Division,
+                TokenType.Modulo => OperatorType.Modulo,
+                _ => throw new ParserException("Unexpected token")
+            };
+            Consume(lexer.CurrentToken.Type);
+            var right = Term();
+            return new OperatorNode(@operator, left, right);
         }
-
-        return new TermNode(EnumerateNodes());
+        return left;
     }
     
     private INode Exponent()

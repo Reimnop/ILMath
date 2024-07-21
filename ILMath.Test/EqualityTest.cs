@@ -8,31 +8,55 @@ public class EqualityTest
     [TestMethod]
     public void TestMethod1()
     {
-        Assert.AreEqual(CreateSyntaxTree("2 + 1 * 5"), CreateSyntaxTree("2 + 1 * 5"));
+        var expect = new OperatorNode(
+            OperatorType.Plus, 
+            new NumberNode(2.0), 
+            new OperatorNode(
+                OperatorType.Multiplication, 
+                new NumberNode(1.0), 
+                new NumberNode(5.0)));
+        Assert.AreEqual(expect, CreateSyntaxTree("2 + 1 * 5"));
     }
     
     [TestMethod]
     public void TestMethod2()
     {
-        Assert.AreEqual(CreateSyntaxTree("sin(pi)"), CreateSyntaxTree("sin(pi)"));
+        var expect = new FunctionNode("sin", [ new VariableNode("pi") ]);
+        Assert.AreEqual(expect, CreateSyntaxTree("sin(pi)"));
     }
     
     [TestMethod]
     public void TestMethod3()
     {
-        Assert.AreNotEqual(CreateSyntaxTree("sin(pi / 2)"), CreateSyntaxTree("sin(pi / 4)"));
+        var expect = new FunctionNode(
+            "sin", [
+                new OperatorNode(
+                    OperatorType.Division, 
+                    new VariableNode("pi"), 
+                    new NumberNode(2.0))]);
+        Assert.AreNotEqual(expect, CreateSyntaxTree("sin(pi / 4)"));
     }
     
     [TestMethod]
     public void TestMethod4()
     {
-        Assert.AreNotEqual(CreateSyntaxTree("cos(pi / 4) * 8.0"), CreateSyntaxTree("sin(pi / 4) * 8.0"));
+        var expect = new OperatorNode(
+            OperatorType.Multiplication, 
+            new FunctionNode(
+                "sin", [
+                    new OperatorNode(
+                        OperatorType.Division, 
+                        new VariableNode("pi"), 
+                        new NumberNode(4.0))]), 
+            new NumberNode(8.0));
+        Assert.AreEqual(expect, CreateSyntaxTree("sin(pi / 4) * 8.0"));
     }
     
     [TestMethod]
     public void TestMethod5()
     {
-        Assert.AreNotEqual(CreateSyntaxTree("4.0 * sin(pi / 4) * 8.0 + 1.0"), CreateSyntaxTree("4.0 * sin(pi / 4) * 8.0 + 2.0"));
+        var expect = new NumberNode(5.0);
+        Assert.AreEqual(expect, CreateSyntaxTree("5"));
     }
     
     private static INode CreateSyntaxTree(string expression)

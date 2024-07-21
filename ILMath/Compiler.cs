@@ -93,11 +93,8 @@ public class Compiler
     {
         switch (node)
         {
-            case ExpressionNode expressionNode:
-                CompileExpressionNode(expressionNode, il, state);
-                break;
-            case TermNode termNode:
-                CompileTermNode(termNode, il, state);
+            case OperatorNode expressionNode:
+                CompileOperatorNode(expressionNode, il, state);
                 break;
             case ExponentNode exponentNode:
                 CompileExponentNode(exponentNode, il, state);
@@ -107,9 +104,6 @@ public class Compiler
                 break;
             case UnaryNode unaryNode:
                 CompileUnaryNode(unaryNode, il, state);
-                break;
-            case OperatorNode operatorNode:
-                CompileOperatorNode(operatorNode, il);
                 break;
             case VariableNode variableNode:
                 CompileVariableNode(variableNode, il);
@@ -122,36 +116,14 @@ public class Compiler
         }
     }
 
-    private void CompileExpressionNode(ExpressionNode expressionNode, ILGenerator il, CompilationState state)
+    private void CompileOperatorNode(OperatorNode operatorNode, ILGenerator il, CompilationState state)
     {
-        var children = expressionNode.Children;
-        CompileNode(children[0], il, state);
-        
-        // Get the next nodes
-        for (var i = 1; i < children.Count; i += 2)
-        {
-            var @operator = (OperatorNode) children[i];
-            var child = children[i + 1];
-            
-            CompileNode(child, il, state);
-            CompileNode(@operator, il, state);
-        }
-    }
-    
-    private void CompileTermNode(TermNode termNode, ILGenerator il, CompilationState state)
-    {
-        var children = termNode.Children;
-        CompileNode(children[0], il, state);
-        
-        // Get the next nodes
-        for (var i = 1; i < children.Count; i += 2)
-        {
-            var @operator = (OperatorNode) children[i];
-            var child = children[i + 1];
-            
-            CompileNode(child, il, state);
-            CompileNode(@operator, il, state);
-        }
+        var left = operatorNode.Left;
+        var right = operatorNode.Right;
+        var @operator = operatorNode.Operator;
+        CompileNode(left, il, state);
+        CompileNode(right, il, state);
+        GenerateOperatorInstruction(@operator, il);
     }
     
     private void CompileExponentNode(ExponentNode exponentNode, ILGenerator il, CompilationState state)
@@ -174,23 +146,6 @@ public class Compiler
         CompileNode(unaryNode.Child, il, state);
         if (unaryNode.Operator == OperatorType.Minus)
             il.Emit(OpCodes.Neg);
-    }
-    
-    private void CompileOperatorNode(OperatorNode operatorNode, ILGenerator il)
-    {
-        var opCode = operatorNode.Operator switch
-        {
-            OperatorType.Plus => OpCodes.Add,
-            OperatorType.Minus => OpCodes.Sub,
-            OperatorType.Multiplication => OpCodes.Mul,
-            OperatorType.Division => OpCodes.Div,
-            OperatorType.Modulo => OpCodes.Rem,
-            
-            // This should never happen, unless the user builds the syntax tree manually
-            _ => throw new CompilerException($"Unknown operator type: {operatorNode.Operator}")
-        };
-        
-        il.Emit(opCode);
     }
     
     private void CompileVariableNode(VariableNode variableNode, ILGenerator il)
@@ -270,5 +225,20 @@ public class Compiler
 
         // Call the CallFunction method
         il.Emit(OpCodes.Callvirt, typeof(IEvaluationContext).GetMethod(nameof(IEvaluationContext.CallFunction))!);
+    }
+    
+    private static void GenerateOperatorInstruction(OperatorType operatorType, ILGenerator il)
+    {
+        var opCode = operatorType switch
+        {
+            OperatorType.Plus => OpCodes.Add,
+            OperatorType.Minus => OpCodes.Sub,
+            OperatorType.Multiplication => OpCodes.Mul,
+            OperatorType.Division => OpCodes.Div,
+            OperatorType.Modulo => OpCodes.Rem,
+            _ => throw new CompilerException($"Unknown operator type '{operatorType}'")
+        };
+        
+        il.Emit(opCode);
     }
 }
