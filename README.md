@@ -7,6 +7,7 @@
 - 📦 Supports many math functions and constants (including custom)!
 - 🔥 Extremely fast (after compilation)!
 - 📚 Easy to use!
+- **New!** ⚙️ Now supports NativeAOT! (disables dynamic code generation)
 
 ## Installation
 ILMath is available as a [NuGet package](https://www.nuget.org/packages/ILMath/).
