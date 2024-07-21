@@ -1,7 +1,7 @@
 ﻿namespace ILMath.Exception;
 
 /// <summary>
-/// Thrown by the <see cref="Compiler"/> when an error occurs.
+/// Thrown by the <see cref="FunctionCompiler"/> when an error occurs.
 /// </summary>
 public class CompilerException : System.Exception
 {

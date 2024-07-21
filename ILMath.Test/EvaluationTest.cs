@@ -69,11 +69,7 @@ public class EvaluationTest
 
     private static Evaluator CreateEvaluator(string expression)
     {
-        var lexer = new Lexer(expression);
-        var parser = new Parser(lexer);
-        var syntaxTree = parser.Parse();
-        var compiler = new Compiler(syntaxTree);
-        return compiler.Compile(string.Empty);
+        return MathEvaluation.CompileExpression(string.Empty, expression);
     }
 
     private static IEvaluationContext CreateEvaluationContext()

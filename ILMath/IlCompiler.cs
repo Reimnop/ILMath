@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection.Emit;
 using ILMath.Exception;
 using ILMath.SyntaxTree;
@@ -6,21 +6,16 @@ using ILMath.SyntaxTree;
 namespace ILMath;
 
 /// <summary>
-/// Represents a function that is compiled to evaluate an expression.
-/// </summary>
-public delegate double Evaluator(IEvaluationContext context);
-
-/// <summary>
 /// Compiles a syntax tree into Microsoft Intermediate Language (MSIL) code.
 /// </summary>
-public class Compiler
+public class IlCompiler
 {
     private record struct CompilationState(LocalBuilder? Parameters, int StackLocation);
 
     private readonly INode root;
     private readonly int maximumParameterStackSize;
     
-    public Compiler(INode root)
+    public IlCompiler(INode root)
     {
         this.root = root;
         
