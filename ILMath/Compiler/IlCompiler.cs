@@ -3,59 +3,35 @@ using System.Reflection.Emit;
 using ILMath.Exception;
 using ILMath.SyntaxTree;
 
-namespace ILMath;
+namespace ILMath.Compiler;
 
 /// <summary>
-/// Compiles a syntax tree into Microsoft Intermediate Language (MSIL) code.
+/// Compiles the expression by generating IL code.<br/>
+/// <b>Note:</b> Does not work in AOT environments.
 /// </summary>
-public class IlCompiler
+public class IlCompiler : ICompiler
 {
     private record struct CompilationState(LocalBuilder? Parameters, int StackLocation);
-
-    private readonly INode root;
-    private readonly int maximumParameterStackSize;
-    
-    public IlCompiler(INode root)
-    {
-        this.root = root;
-        
-        // Calculate the maximum parameter stack size
-        var maximumStackSize = 0;
-        CalculateMaximumParameterStackSize(root, -1, ref maximumStackSize);
-        maximumParameterStackSize = maximumStackSize;
-    }
-
-    private static void CalculateMaximumParameterStackSize(INode node, int stackLocation, ref int maximumStackSize)
-    {
-        if (node is FunctionNode functionNode)
-        {
-            // For each child, increment the stack size
-            foreach (var child in functionNode.Parameters)
-            {
-                stackLocation++;
-                CalculateMaximumParameterStackSize(child, stackLocation, ref maximumStackSize);
-                maximumStackSize = Math.Max(maximumStackSize, stackLocation + 1);
-            }
-        }
-        else
-            foreach (var child in node.EnumerateChildren())
-                CalculateMaximumParameterStackSize(child, stackLocation, ref maximumStackSize);
-    }
 
     /// <summary>
     /// Compiles the syntax tree into a function.
     /// </summary>
     /// <param name="name">The name of the function.</param>
+    /// /// <param name="tree">The syntax tree to compile.</param>
     /// <returns>The evaluator.</returns>
-    public Evaluator Compile(string name)
+    public Evaluator Compile(string name, INode tree)
     {
-        return CompileSyntaxTree(name, root);
+        return CompileSyntaxTree(name, tree);
     }
 
     private Evaluator CompileSyntaxTree(string name, INode rootNode)
     {
+        // Calculate the maximum parameter stack size
+        var maximumParameterStackSize = 0;
+        CalculateMaximumParameterStackSize(rootNode, 0, ref maximumParameterStackSize);
+        
         // Create a new dynamic method
-        var method = new DynamicMethod(name, typeof(double), new [] { typeof(IEvaluationContext) });
+        var method = new DynamicMethod(name, typeof(double), [typeof(IEvaluationContext)]);
         var il = method.GetILGenerator();
         
         // If maximum parameter stack size is greater than zero, stackalloc the parameters array
@@ -226,5 +202,22 @@ public class IlCompiler
             il.Emit(opCode);
         else 
             il.Emit(opCode, typeof(Math).GetMethod(nameof(Math.Pow))!);
+    }
+    
+    private static void CalculateMaximumParameterStackSize(INode node, int stackLocation, ref int maximumStackSize)
+    {
+        if (node is FunctionNode functionNode)
+        {
+            // For each child, increment the stack size
+            foreach (var child in functionNode.Parameters)
+            {
+                stackLocation++;
+                CalculateMaximumParameterStackSize(child, stackLocation, ref maximumStackSize);
+                maximumStackSize = Math.Max(maximumStackSize, stackLocation + 1);
+            }
+        }
+        else
+            foreach (var child in node.EnumerateChildren())
+                CalculateMaximumParameterStackSize(child, stackLocation, ref maximumStackSize);
     }
 }

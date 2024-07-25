@@ -1,39 +1,32 @@
-﻿using ILMath.Exception;
+﻿using System.Linq.Expressions;
+using ILMath.Exception;
 using ILMath.SyntaxTree;
 
-namespace ILMath;
+namespace ILMath.Compiler;
 
 /// <summary>
-/// Compiles a syntax tree into functions.
+/// Compiles the expression using functional methods.
 /// </summary>
-public class FunctionCompiler
+public class FunctionalCompiler : ICompiler
 {
-    private delegate double EvaluatorPart(IEvaluationContext context);
-
-    private readonly INode root;
-    
-    public FunctionCompiler(INode root)
-    {
-        this.root = root;
-    }
-
     /// <summary>
     /// Compiles the syntax tree into a function.
     /// </summary>
     /// <param name="name">The name of the function.</param>
+    /// <param name="tree">The syntax tree to compile.</param>
     /// <returns>The evaluator.</returns>
-    public Evaluator Compile(string name)
+    public Evaluator Compile(string name, INode tree)
     {
-        return CompileSyntaxTree(name, root);
+        return CompileSyntaxTree(tree);
     }
 
-    private Evaluator CompileSyntaxTree(string _, INode rootNode)
+    private Evaluator CompileSyntaxTree(INode rootNode)
     {
         var compiledRoot = CompileNode(rootNode);
         return context => compiledRoot(context);
     }
 
-    private EvaluatorPart CompileNode(INode node)
+    private Evaluator CompileNode(INode node)
     {
         return node switch
         {
@@ -46,7 +39,7 @@ public class FunctionCompiler
         };
     }
 
-    private EvaluatorPart CompileOperatorNode(OperatorNode operatorNode)
+    private Evaluator CompileOperatorNode(OperatorNode operatorNode)
     {
         var left = operatorNode.Left;
         var right = operatorNode.Right;
@@ -65,13 +58,13 @@ public class FunctionCompiler
         };
     }
     
-    private static EvaluatorPart CompileNumberNode(NumberNode numberNode)
+    private static Evaluator CompileNumberNode(NumberNode numberNode)
     {
         var value = numberNode.Value;
         return _ => value;
     }
     
-    private EvaluatorPart CompileUnaryNode(UnaryNode unaryNode)
+    private Evaluator CompileUnaryNode(UnaryNode unaryNode)
     {
         var compiledChild = CompileNode(unaryNode.Child);
         return unaryNode.Operator switch
@@ -82,13 +75,13 @@ public class FunctionCompiler
         };
     }
     
-    private EvaluatorPart CompileVariableNode(VariableNode variableNode)
+    private Evaluator CompileVariableNode(VariableNode variableNode)
     {
         var identifier = variableNode.Identifier;
         return context => context.GetVariable(identifier);
     }
 
-    private EvaluatorPart CompileFunctionNode(FunctionNode functionNode)
+    private Evaluator CompileFunctionNode(FunctionNode functionNode)
     {
         var parameters = functionNode.Parameters;
         var compiledParameters = parameters.Select(CompileNode).ToArray();
